@@ -199,14 +199,12 @@ struct Result
 class Deterctor{
 public:
     Deterctor(LightParams light_params,ArmorParams armor_params,int binary_thres,EnemyColor ourColor,
-                std::string model_path = "/home/yc/test1/test1/model/lenet.onnx",
-                std::string label_path = "/home/yc/test1/test1/model/label.txt"):
+                std::string model_path = "./model/lenet.onnx",
+                std::string label_path = "./model/label.txt"):
     light_params(light_params),armor_params(armor_params),binary_thres(binary_thres),ourColor(ourColor),is_drawArmor(is_drawArmor)
     {
         this -> model = new NumberClassifier(model_path,label_path);
     }
-
-    void test(const cv::Mat& input,std::vector<Result> &results);
     
     void deterct(const cv::Mat& input,std::vector<Result> &results);
     

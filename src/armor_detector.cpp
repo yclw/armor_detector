@@ -5,16 +5,6 @@
 #include "opencv2/imgproc.hpp"
 // #include <opencv2/ximgproc/fast_line_detector.hpp>
 
-void Deterctor::test(const cv::Mat& input,std::vector<Result> &results){
-  cv::Mat _binary_img(input.rows, input.cols, CV_8UC1);
-  std::vector<Light> _lights;
-  std::vector<Armor> _armors;
-  preprocessImage(input,_binary_img);
-
-  // cv::ximgproc::createFastLineDetector();
-
-}
-
 void Deterctor::deterct(const cv::Mat& input,std::vector<Result> &results) {
   cv::Mat _binary_img(input.rows, input.cols, CV_8UC1);
   std::vector<Light> _lights;
@@ -61,7 +51,7 @@ void Deterctor::preprocessImage(const cv::Mat& rgb_img,cv::Mat& binary_img) {
   
   // cv::extractChannel(rgb_img, binary_img, 2);
 
-  // cv::threshold(binary_img, binary_img, 60, 255, cv::THRESH_BINARY);
+  // cv::threshold(binary_img, binary_img, binary_thres, 255, cv::THRESH_BINARY);
   
   // int64 end1 = cv::getTickCount();
   // printf("cvtColor: %f us\n", (end1 - start) / cv::getTickFrequency() * 1000000);
@@ -88,7 +78,7 @@ void Deterctor::findLights(cv::InputArray rgb_img,cv::InputArray binary_img,std:
 
   // int64 start =  cv::getTickCount();
 
-  cv::findContours(binary_img, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+  cv::findContours(binary_img, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
   
   // cv::Canny(binary_img, edges, 50, 150);
   // int64 end =  cv::getTickCount();

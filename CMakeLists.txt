@@ -5,6 +5,7 @@ project(quick_discovery)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3 -march=native -fopenmp")
 
 # opencv
+set(OpenCV_DIR /home/yc-mini/opencv/opencv-4.10.0/install/lib/cmake/opencv4)
 find_package(OpenCV REQUIRED)
 find_package(TBB REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -17,4 +18,4 @@ add_executable(quick_discovery
     src/number_classifier.cpp
 )
 
-target_link_libraries(quick_discovery ${OpenCV_LIBS} TBB::tbb /home/yc/my_sdk_test01/lib/libMVSDK.so)
+target_link_libraries(quick_discovery ${OpenCV_LIBS} TBB::tbb)
