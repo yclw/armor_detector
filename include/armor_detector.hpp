@@ -196,9 +196,9 @@ struct Result
 //          //
 //////////////
 
-class Deterctor{
+class Detector{
 public:
-    Deterctor(LightParams light_params,ArmorParams armor_params,int binary_thres,EnemyColor ourColor,
+    Detector(LightParams light_params,ArmorParams armor_params,int binary_thres,EnemyColor ourColor,
                 std::string model_path = "./model/lenet.onnx",
                 std::string label_path = "./model/label.txt"):
     light_params(light_params),armor_params(armor_params),binary_thres(binary_thres),ourColor(ourColor),is_drawArmor(is_drawArmor)
@@ -206,7 +206,7 @@ public:
         this -> model = new NumberClassifier(model_path,label_path);
     }
     
-    void deterct(const cv::Mat& input,std::vector<Result> &results);
+    void detect(const cv::Mat& input,std::vector<Result> &results);
     
 private:
 

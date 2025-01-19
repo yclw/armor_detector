@@ -5,7 +5,7 @@
 #include "opencv2/imgproc.hpp"
 // #include <opencv2/ximgproc/fast_line_detector.hpp>
 
-void Deterctor::deterct(const cv::Mat& input,std::vector<Result> &results) {
+void Detector::detect(const cv::Mat& input,std::vector<Result> &results) {
   cv::Mat _binary_img(input.rows, input.cols, CV_8UC1);
   std::vector<Light> _lights;
   std::vector<Armor> _armors;
@@ -14,7 +14,7 @@ void Deterctor::deterct(const cv::Mat& input,std::vector<Result> &results) {
   matchLights(_lights, input,_armors,results);
 }
 
-void Deterctor::preprocessImage(const cv::Mat& rgb_img,cv::Mat& binary_img) {
+void Detector::preprocessImage(const cv::Mat& rgb_img,cv::Mat& binary_img) {
 
   // uchar* p = rgb_img.data;
   // uchar* pRed = binary_img.data;
@@ -36,7 +36,7 @@ void Deterctor::preprocessImage(const cv::Mat& rgb_img,cv::Mat& binary_img) {
 
 }
 
-bool Deterctor::isLight(const Light &light) {
+bool Detector::isLight(const Light &light) {
   // The ratio of light (short side / long side)
   float ratio = light.width / light.length;
   bool ratio_ok = light_params.min_ratio < ratio && ratio < light_params.max_ratio;
@@ -49,7 +49,7 @@ bool Deterctor::isLight(const Light &light) {
   return is_light;
 }
 
-void Deterctor::findLights(cv::InputArray rgb_img,cv::InputArray binary_img,std::vector<Light>& lights){
+void Detector::findLights(cv::InputArray rgb_img,cv::InputArray binary_img,std::vector<Light>& lights){
 
   
   const cv::Mat rgb = rgb_img.getMat();
@@ -82,7 +82,7 @@ void Deterctor::findLights(cv::InputArray rgb_img,cv::InputArray binary_img,std:
   });
 }
 
-bool Deterctor::containLight(const int i, const int j, const std::vector<Light> &lights){
+bool Detector::containLight(const int i, const int j, const std::vector<Light> &lights){
   const Light &light_1 = lights.at(i), light_2 = lights.at(j);
   auto points = std::vector<cv::Point2f>{light_1.top, light_1.bottom, light_2.top, light_2.bottom};
   auto bounding_rect = cv::boundingRect(points);
@@ -109,7 +109,7 @@ bool Deterctor::containLight(const int i, const int j, const std::vector<Light> 
   return false;
 }
 
-ArmorType Deterctor::isArmor(const Light &light_1, const Light &light_2){
+ArmorType Detector::isArmor(const Light &light_1, const Light &light_2){
   // Ratio of the length of 2 lights (short side / long side)
   float light_length_ratio = light_1.length < light_2.length ? light_1.length / light_2.length
                                                              : light_2.length / light_1.length;
@@ -143,7 +143,7 @@ ArmorType Deterctor::isArmor(const Light &light_1, const Light &light_2){
   return type;
 }
 
-void Deterctor::matchLights(const std::vector<Light> &lights,cv::InputArray img,std::vector<Armor> &armors,std::vector<Result> &results){
+void Detector::matchLights(const std::vector<Light> &lights,cv::InputArray img,std::vector<Armor> &armors,std::vector<Result> &results){
   for (auto light_1 = lights.begin(); light_1 != lights.end(); light_1++) {
     double max_iter_width = light_1->length * armor_params.max_large_center_distance;
     double min_iter_width = light_1 -> width;
@@ -168,7 +168,7 @@ void Deterctor::matchLights(const std::vector<Light> &lights,cv::InputArray img,
   }
 }
 
-cv::Mat Deterctor::extractNumber(cv::InputArray src, Armor &armor){
+cv::Mat Detector::extractNumber(cv::InputArray src, Armor &armor){
   // Light length in image
   static const int light_length = 12;
   // Image size after warp
