@@ -5,66 +5,35 @@
 #include "opencv2/imgproc.hpp"
 // #include <opencv2/ximgproc/fast_line_detector.hpp>
 
-void Deterctor::test(const cv::Mat& input,std::vector<Result> &results){
-  cv::Mat _binary_img(input.rows, input.cols, CV_8UC1);
-  std::vector<Light> _lights;
-  std::vector<Armor> _armors;
-  preprocessImage(input,_binary_img);
-
-  // cv::ximgproc::createFastLineDetector();
-
-}
-
 void Deterctor::deterct(const cv::Mat& input,std::vector<Result> &results) {
   cv::Mat _binary_img(input.rows, input.cols, CV_8UC1);
   std::vector<Light> _lights;
   std::vector<Armor> _armors;
-
-  // int64 start = cv::getTickCount();
-
   preprocessImage(input,_binary_img);
-
-  // int64 end = cv::getTickCount();
-  // std::cout << "preprocessImage: " << (end - start) / cv::getTickFrequency() * 1000000 << "us" << std::endl;
-
-  // cv::imshow("output_numImg", _binary_img);
-  // cv::waitKey(0);
-  // start = cv::getTickCount();
   findLights(input, _binary_img,_lights);
-  // end = cv::getTickCount();
-  // std::cout << "findLights: " << (end - start) / cv::getTickFrequency() * 1000000 << "us" << std::endl;
-
-  // start = cv::getTickCount();
   matchLights(_lights, input,_armors,results);
-  // end = cv::getTickCount();
-  // std::cout << "matchLights: " << (end - start) / cv::getTickFrequency() * 1000000 << "us" << std::endl;
 }
 
 void Deterctor::preprocessImage(const cv::Mat& rgb_img,cv::Mat& binary_img) {
-  // int64 start = cv::getTickCount();
-  // cv::cvtColor(rgb_img, binary_img, cv::COLOR_RGB2GRAY);
-  uchar* p = rgb_img.data;
-  uchar* pRed = binary_img.data;
 
-  cv::parallel_for_(cv::Range(0, rgb_img.rows), [&](const cv::Range& range) {
-      for (int i = range.start; i < range.end; i++) {
-          uchar* rowPtr = p + i * rgb_img.cols * 3;
-          uchar* rowRedPtr = pRed + i * rgb_img.cols;
+  // uchar* p = rgb_img.data;
+  // uchar* pRed = binary_img.data;
 
-          for (int j = 0; j < rgb_img.cols; j++) {
-              rowRedPtr[j] = rowPtr[j * 3 + 2];
-              // 直接二值化
-              rowRedPtr[j]>= 135 ? rowRedPtr[j] = 255 : rowRedPtr[j] = 0;
-          }
-      }
-  });
-  
-  // cv::extractChannel(rgb_img, binary_img, 2);
+  // cv::parallel_for_(cv::Range(0, rgb_img.rows), [&](const cv::Range& range) {
+  //     for (int i = range.start; i < range.end; i++) {
+  //         uchar* rowPtr = p + i * rgb_img.cols * 3;
+  //         uchar* rowRedPtr = pRed + i * rgb_img.cols;
 
-  // cv::threshold(binary_img, binary_img, 60, 255, cv::THRESH_BINARY);
-  
-  // int64 end1 = cv::getTickCount();
-  // printf("cvtColor: %f us\n", (end1 - start) / cv::getTickFrequency() * 1000000);
+  //         for (int j = 0; j < rgb_img.cols; j++) {
+  //             rowRedPtr[j] = rowPtr[j * 3 + (ourColor==EnemyColor::BLUE ? 2:0)] >= binary_thres ? 255 : 0;
+  //         }
+  //     }
+  // });
+  cv::UMat rgb_img_umat = rgb_img.getUMat(cv::ACCESS_READ);
+  cv::UMat gray_img_umat;
+  cv::extractChannel(rgb_img_umat, gray_img_umat, ourColor==EnemyColor::BLUE ? 2:0);
+  cv::threshold(gray_img_umat, binary_img, binary_thres, 255, cv::THRESH_BINARY);
+
 }
 
 bool Deterctor::isLight(const Light &light) {
@@ -81,41 +50,33 @@ bool Deterctor::isLight(const Light &light) {
 }
 
 void Deterctor::findLights(cv::InputArray rgb_img,cv::InputArray binary_img,std::vector<Light>& lights){
+
   
   const cv::Mat rgb = rgb_img.getMat();
   std::vector<std::vector<cv::Point>> contours;
   std::vector<cv::Vec4i> hierarchy;
 
-  // int64 start =  cv::getTickCount();
-
   cv::findContours(binary_img, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
-  
-  // cv::Canny(binary_img, edges, 50, 150);
-  // int64 end =  cv::getTickCount();
-  // printf("ligh8t: %f us\n", (end - start) / cv::getTickFrequency() * 1000000);
-  
+
   for (const auto &contour : contours) {
-    if (contour.size() < 30) continue;
+    if (contour.size() < 6) continue;
     
     Light light = Light(contour);
     if (isLight(light)) {
         int sum_r = 0, sum_b = 0;
         for (const auto &point : contour) {
-          sum_r += rgb.at<cv::Vec3b>(point.y, point.x)[0];
-          sum_b += rgb.at<cv::Vec3b>(point.y, point.x)[2];
+          sum_r += rgb.at<cv::Vec3b>(point.y, point.x)[2];
+          sum_b += rgb.at<cv::Vec3b>(point.y, point.x)[0];
         }
       if (std::abs(sum_r - sum_b) / static_cast<int>(contour.size()) >
           light_params.color_diff_thresh) {
           light.color = sum_r > sum_b ? EnemyColor::RED : EnemyColor::BLUE;
       }
-      if (light.color == ourColor){
-        // cv::line(rgb, light.top, light.bottom, cv::Scalar(255), 10);
+      if (light.color != ourColor){
         lights.emplace_back(light);
       }
     }
   }
-  // cv::imshow("light", rgb);
-  // cv::waitKey(0);
   std::sort(lights.begin(), lights.end(), [](const Light &l1, const Light &l2) {
     return l1.center.x < l2.center.x;
   });
