@@ -1,17 +1,17 @@
 [
 {
   "directory": "/home/yc-mini/myStudy/armor_detector/build",
-  "command": "/usr/bin/g++ -DTBB_USE_DEBUG -I/home/yc-mini/myStudy/armor_detector/include -I/home/yc-mini/myStudy/armor_detector/virtual_camera -isystem /home/yc-mini/opencv/opencv-4.10.0/install/include/opencv4  -std=c++14 -O3 -march=native -fopenmp -g -o CMakeFiles/quick_discovery.dir/test/main.cpp.o -c /home/yc-mini/myStudy/armor_detector/test/main.cpp",
+  "command": "/usr/bin/g++ -DTBB_USE_DEBUG -I/home/yc-mini/myStudy/armor_detector/include -I/home/yc-mini/myStudy/armor_detector/hikSDK/include -I/home/yc-mini/myStudy/armor_detector/virtual_camera -isystem /home/yc-mini/opencv/opencv-4.10.0/install/include/opencv4  -std=c++20 -O3 -march=native -fopenmp -g -o CMakeFiles/quick_discovery.dir/test/main.cpp.o -c /home/yc-mini/myStudy/armor_detector/test/main.cpp",
   "file": "/home/yc-mini/myStudy/armor_detector/test/main.cpp"
 },
 {
   "directory": "/home/yc-mini/myStudy/armor_detector/build",
-  "command": "/usr/bin/g++ -DTBB_USE_DEBUG -I/home/yc-mini/myStudy/armor_detector/include -I/home/yc-mini/myStudy/armor_detector/virtual_camera -isystem /home/yc-mini/opencv/opencv-4.10.0/install/include/opencv4  -std=c++14 -O3 -march=native -fopenmp -g -o CMakeFiles/quick_discovery.dir/src/armor_detector.cpp.o -c /home/yc-mini/myStudy/armor_detector/src/armor_detector.cpp",
+  "command": "/usr/bin/g++ -DTBB_USE_DEBUG -I/home/yc-mini/myStudy/armor_detector/include -I/home/yc-mini/myStudy/armor_detector/hikSDK/include -I/home/yc-mini/myStudy/armor_detector/virtual_camera -isystem /home/yc-mini/opencv/opencv-4.10.0/install/include/opencv4  -std=c++20 -O3 -march=native -fopenmp -g -o CMakeFiles/quick_discovery.dir/src/armor_detector.cpp.o -c /home/yc-mini/myStudy/armor_detector/src/armor_detector.cpp",
   "file": "/home/yc-mini/myStudy/armor_detector/src/armor_detector.cpp"
 },
 {
   "directory": "/home/yc-mini/myStudy/armor_detector/build",
-  "command": "/usr/bin/g++ -DTBB_USE_DEBUG -I/home/yc-mini/myStudy/armor_detector/include -I/home/yc-mini/myStudy/armor_detector/virtual_camera -isystem /home/yc-mini/opencv/opencv-4.10.0/install/include/opencv4  -std=c++14 -O3 -march=native -fopenmp -g -o CMakeFiles/quick_discovery.dir/src/number_classifier.cpp.o -c /home/yc-mini/myStudy/armor_detector/src/number_classifier.cpp",
+  "command": "/usr/bin/g++ -DTBB_USE_DEBUG -I/home/yc-mini/myStudy/armor_detector/include -I/home/yc-mini/myStudy/armor_detector/hikSDK/include -I/home/yc-mini/myStudy/armor_detector/virtual_camera -isystem /home/yc-mini/opencv/opencv-4.10.0/install/include/opencv4  -std=c++20 -O3 -march=native -fopenmp -g -o CMakeFiles/quick_discovery.dir/src/number_classifier.cpp.o -c /home/yc-mini/myStudy/armor_detector/src/number_classifier.cpp",
   "file": "/home/yc-mini/myStudy/armor_detector/src/number_classifier.cpp"
 }
 ]

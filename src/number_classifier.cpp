@@ -21,19 +21,19 @@
 #include "number_classifier.hpp"
 
 NumberClassifier::NumberClassifier(const std::string &model_path,
-                                   const std::string &label_path){
+                                   const std::string &label_path)
+{
   net_ = cv::dnn::readNetFromONNX(model_path);
   std::ifstream label_file(label_path);
   std::string line;
-  while (std::getline(label_file, line)) {
+  while (std::getline(label_file, line))
+  {
     class_names_.push_back(line);
   }
 }
 
-
-std::vector<int> NumberClassifier::classify(cv::Mat &img_num){
-  static const cv::Size input_size(28, 28);
-  cv::resize(img_num, img_num, input_size);
+std::vector<int> NumberClassifier::classify(cv::Mat &img_num)
+{
   // Normalize
   cv::Mat input = img_num / 255.0;
 
@@ -57,8 +57,6 @@ std::vector<int> NumberClassifier::classify(cv::Mat &img_num){
 
   std::vector<int> result;
   result.push_back(label_id);
-  result.push_back((int)(confidence*100));
+  result.push_back((int)(confidence * 100));
   return result;
 }
-
-

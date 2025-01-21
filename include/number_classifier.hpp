@@ -11,7 +11,8 @@
 #include <opencv2/opencv.hpp>
 
 // Class used to classify the number of the armor, based on the MLP model
-class NumberClassifier {
+class NumberClassifier
+{
 public:
   NumberClassifier(const std::string &model_path,
                    const std::string &label_path);
@@ -28,4 +29,4 @@ private:
   std::vector<std::string> ignore_classes_;
 };
 
-#endif  // ARMOR_DETECTOR_NUMBER_CLASSIFIER_HPP_
+#endif // ARMOR_DETECTOR_NUMBER_CLASSIFIER_HPP_

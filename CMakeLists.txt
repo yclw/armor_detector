@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(quick_discovery)
 
 # 优化
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3 -march=native -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -O3 -march=native -fopenmp")
 
 # opencv
 set(OpenCV_DIR /home/yc-mini/opencv/opencv-4.10.0/install/lib/cmake/opencv4)
@@ -11,6 +11,7 @@ find_package(TBB REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 include_directories(include)
+include_directories(hikSDK/include)
 include_directories(virtual_camera)
 
 add_executable(quick_discovery
