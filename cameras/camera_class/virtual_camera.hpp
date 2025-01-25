@@ -1,26 +1,19 @@
 #ifndef VIRTUAL_CAMERA_HPP
 #define VIRTUAL_CAMERA_HPP
 
-#include <iostream>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <unordered_map>
-#include <opencv2/core.hpp>
-#include <memory>
-#include <atomic>
-#include <chrono>
-#include "armor_detector.hpp"
+#include "camera_core.hpp"
 
-class VirtualCamera
+class VirtualCamera:public Camera
 {
 public:
     VirtualCamera(const std::string &name, std::shared_ptr<std::pair<cv::Mat, bool>> sharedFrame, std::mutex &mtx, std::condition_variable &cv, cv::Mat frame, int sleep = 5)
-        : name(name), sharedFrame(sharedFrame), mtx(mtx), cv(cv), frame(frame.clone()), sleep(sleep), lostFrames(0) {}
+        : name(name), sharedFrame(sharedFrame), mtx(mtx), cv(cv), frame(frame.clone()), sleep(sleep), lostFrames(0), stop(false) {}
 
-    void operator()()
+    ~VirtualCamera() override {}
+
+    void operator()() override
     {
-        while (true)
+        while (!stop.load())
         {
             {
                 std::lock_guard<std::mutex> lock(mtx);
@@ -36,7 +29,7 @@ public:
         }
     }
 
-    int getLostFrames() const
+    int getLostFrames() const override
     {
         return lostFrames.load();
     }
@@ -45,6 +38,11 @@ public:
     void setSleep(int sleep)
     {
         this->sleep = sleep;
+    }
+
+    // 停止采集
+    void stopGrabbing() override {
+        stop.store(true);
     }
 
 private:
@@ -62,7 +60,7 @@ private:
     int sleep;
 
     std::atomic<int> lostFrames; // 丢弃帧计数器
+    std::atomic<bool> stop;
 };
-
 
 #endif // VIRTUAL_CAMERA_HPP

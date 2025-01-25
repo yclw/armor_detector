@@ -1,57 +1,48 @@
 #ifndef MIND_CAMERA_HPP
 #define MIND_CAMERA_HPP
 
-#include <iostream>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <unordered_map>
-#include <opencv2/core.hpp>
-#include <memory>
-#include <atomic>
-#include <chrono>
-#include "armor_detector.hpp"
+#include "camera_core.hpp"
+#include "CameraApi.h"
 
-#include <CameraApi.h>
-class MindCamera
+
+class MindCamera:public Camera
 {
 public:
-    MindCamera(std::shared_ptr<std::pair<cv::Mat, bool>> sharedFrame, std::mutex &mtx, std::condition_variable &cv, tSdkCameraDevInfo *device)
-        : sharedFrame(sharedFrame), mtx(mtx), cv(cv), lostFrames(0)
+    MindCamera(std::shared_ptr<std::pair<cv::Mat, bool>> sharedFrame, std::mutex &mtx, std::condition_variable &cv, tSdkCameraDevInfo &device)
+        : sharedFrame(sharedFrame), mtx(mtx), cv(cv), lostFrames(0), stop(false)
     {
-        CameraInit(device, -1, -1, &camera_handle_);
+        // 初始化相机
+        CameraInit(&device, -1, -1, &camera_handle_);
         // CameraGetCapability(camera_handle_, &t_capability_);
-        CameraSetAeState(camera_handle_, false);
 
-        // CameraSetExposureTime(camera_handle_, exposure_time);
-        // CameraSetAnalogGain(camera_handle_, analog_gain);
-        // CameraSetGain(camera_handle_, r_gain_, g_gain_, b_gain_);
-        // CameraSetSaturation(camera_handle_, saturation);
-        // CameraSetGamma(camera_handle_, gamma);
+        // 设置自动曝光模式和参数
+        CameraSetAeState(camera_handle_, false);
+        configureCamera();
     }
 
     MindCamera(std::shared_ptr<std::pair<cv::Mat, bool>> sharedFrame, std::mutex &mtx, std::condition_variable &cv)
-        : sharedFrame(sharedFrame), mtx(mtx), cv(cv), lostFrames(0)
+        : sharedFrame(sharedFrame), mtx(mtx), cv(cv), lostFrames(0), stop(false)
     {
-        std::vector<tSdkCameraDevInfo> devices = getMindCameraList();
-        if (devices.empty())
+        // 获取设备列表并选择第一个设备
+        auto devices = getMindCameraList();
+        if (devices.size()==0)
         {
-            std::cout << "No camera found." << std::endl;
-            return;
+            throw std::runtime_error("No camera found.");
         }
-        CameraInit(&devices[0], -1, -1, &camera_handle_);
-        // CameraGetCapability(camera_handle_, &t_capability_);
-        CameraSetAeState(camera_handle_, false);
+        auto device = devices[0];
 
-        // CameraSetExposureTime(camera_handle_, exposure_time);
-        // CameraSetAnalogGain(camera_handle_, analog_gain);
-        // CameraSetGain(camera_handle_, r_gain_, g_gain_, b_gain_);
-        // CameraSetSaturation(camera_handle_, saturation);
-        // CameraSetGamma(camera_handle_, gamma);
+        // 初始化相机
+        CameraInit(&device, -1, -1, &camera_handle_);
+        // CameraGetCapability(camera_handle_, &t_capability_);
+
+        // 设置自动曝光模式和参数
+        CameraSetAeState(camera_handle_, false);
+        configureCamera();
     }
 
-    ~MindCamera()
+    ~MindCamera() override
     {
+        CameraUnInit(camera_handle_);
         std::cout << "MindCamera destroyed." << std::endl;
     }
 
@@ -64,7 +55,6 @@ public:
         int ret = -1;
         tSdkCameraDevInfo device_list[4];
         ret = CameraEnumerateDevice(device_list, &i_camera_counts);
-        std::cout << "Enumerate device status = " << ret << std::endl;
         std::cout << "Found camera count = " << i_camera_counts << std::endl;
 
         std::vector<tSdkCameraDevInfo> devices;
@@ -75,74 +65,97 @@ public:
         return devices;
     }
 
-    void operator()()
+    void operator()() override
     {
         int nRet = CAMERA_STATUS_SUCCESS;
         CameraPlay(camera_handle_);
         CameraSetIspOutFormat(camera_handle_, CAMERA_MEDIA_TYPE_RGB8);
         tSdkFrameHead out_frame_head;
         uint8_t * out_frame_buffer;
-
-        char input;
-        while (true)
+        while (!stop.load())
         {
             nRet = CameraGetImageBuffer(camera_handle_, &out_frame_head, &out_frame_buffer, 1000);
             if (nRet == CAMERA_STATUS_SUCCESS)
             {
-                image_data_.resize(out_frame_head.iHeight * out_frame_head.iWidth * 3);
-                CameraImageProcess(camera_handle_, out_frame_buffer, image_data_.data(), &out_frame_head);
-                frame = cv::Mat(out_frame_head.iHeight, out_frame_head.iWidth, CV_8UC3, image_data_.data());
 
-                {
-                    std::lock_guard<std::mutex> lock(mtx);
-                    if (sharedFrame->second)
-                        lostFrames++;
-                    sharedFrame->first = generateNewFrame();
-                    sharedFrame->second = true;
-                }
-                cv.notify_all();
-
+                processFrame(out_frame_head, out_frame_buffer);
                 CameraReleaseImageBuffer(camera_handle_, out_frame_buffer);
-                fail_conut_ = 0;
+                fail_count_ = 0;
             }
             else
             {
-                std::cout << "Get buffer failed, retrying..." << std::endl;
-                fail_conut_++;
-            }
-
-            if (fail_conut_ > 5)
-            {
-                std::cout << "Camera failed..." << std::endl;
+                handleGrabFailure();
+                fail_count_++;
             }
         }
     }
 
-    int getLostFrames() const
+    // 停止采集
+    void stopGrabbing() override {
+        stop.store(true);
+    }
+
+    int getLostFrames() const override
     {
         return lostFrames.load();
     }
 
 private:
-    cv::Mat generateNewFrame()
-    {
-        return frame.clone();
+    void configureCamera() {
+        std::cout << "Configuring camera..." << std::endl;
+        // 设置曝光时间
+        CameraSetExposureTime(camera_handle_, exposure_time);
+        // 设置增益
+        CameraSetAnalogGain(camera_handle_, analog_gain);
+        CameraSetGain(camera_handle_, r_gain_, g_gain_, b_gain_);
+        // 设置饱和度
+        CameraSetSaturation(camera_handle_, saturation);
+        // 设置gamma
+        CameraSetGamma(camera_handle_, gamma);
     }
 
+    void processFrame(tSdkFrameHead &out_frame_head,uint8_t *out_frame_buffer){
+        image_data_.resize(out_frame_head.iHeight * out_frame_head.iWidth * 3);
+        CameraImageProcess(camera_handle_, out_frame_buffer, image_data_.data(), &out_frame_head);
+        cv::Mat img = cv::Mat(out_frame_head.iHeight, out_frame_head.iWidth, CV_8UC3, image_data_.data());
+
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            if (sharedFrame->second)
+                lostFrames++;
+            sharedFrame->first = img.clone();
+            sharedFrame->second = true;
+        }
+        cv.notify_all();
+    }
+
+    void handleGrabFailure() {
+        std::cout << "Get buffer failed, retrying..." << std::endl;
+        if (fail_count_ > 5) {
+            std::cout << "Camera failed after several attempts." << std::endl;
+        }
+    }
+    
     // 相机句柄，用于相机的控制和通信
     CameraHandle camera_handle_;
-    // 默认曝光时间为5000微秒
+    // 默认曝光时间
     double exposure_time = 5000;
-    // 默认增益为16
-    double gain = 16;
+    // 默认增益
+    int analog_gain = 64;
+    // 默认饱和度
+    int saturation = 128;
+    // 默认rgb三通道的增益
+    int r_gain_ = 100;
+    int g_gain_ = 100;
+    int b_gain_ = 100;
+    // 默认伽马值
+    int gamma = 100;
     // 存储图像数据的缓冲区
     std::vector<uint8_t> image_data_;
     // 标记图像采集是否完成
-    bool over = false;
+    std::atomic<bool> stop;
     // 记录相机连接失败的次数
-    int fail_conut_ = 0;
-
-    cv::Mat frame;
+    int fail_count_ = 0;
 
     std::shared_ptr<std::pair<cv::Mat, bool>> sharedFrame;
     std::mutex &mtx;
