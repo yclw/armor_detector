@@ -1,5 +1,5 @@
-#ifndef ARMOR_DETECTOR_HPP_
-#define ARMOR_DETECTOR_HPP_
+#ifndef ARMOR_DETECTOR_HPP
+#define ARMOR_DETECTOR_HPP
 
 // std
 #include <cmath>

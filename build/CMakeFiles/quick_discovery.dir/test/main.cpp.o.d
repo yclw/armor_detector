@@ -477,7 +477,8 @@ CMakeFiles/quick_discovery.dir/test/main.cpp.o: \
  /home/yc-mini/opencv/opencv-4.10.0/install/include/opencv4/opencv2/video.hpp \
  /home/yc-mini/opencv/opencv-4.10.0/install/include/opencv4/opencv2/video/tracking.hpp \
  /home/yc-mini/opencv/opencv-4.10.0/install/include/opencv4/opencv2/video/background_segm.hpp \
- /home/yc-mini/myStudy/armor_detector/virtual_camera/virtual_camera.hpp \
+ /home/yc-mini/myStudy/armor_detector/cameras/cameras.hpp \
+ /home/yc-mini/myStudy/armor_detector/cameras/camera_class/dah_camera.hpp \
  /usr/include/c++/11/thread /usr/include/c++/11/stop_token \
  /usr/include/c++/11/atomic /usr/include/c++/11/bits/std_thread.h \
  /usr/include/c++/11/semaphore /usr/include/c++/11/bits/semaphore_base.h \
@@ -546,7 +547,16 @@ CMakeFiles/quick_discovery.dir/test/main.cpp.o: \
  /usr/include/c++/11/pstl/glue_numeric_impl.h \
  /usr/include/c++/11/pstl/glue_memory_impl.h \
  /home/yc-mini/myStudy/armor_detector/include/number_classifier.hpp \
+ /home/yc-mini/myStudy/armor_detector/dahSDK/inc/GxIAPI.h \
+ /home/yc-mini/myStudy/armor_detector/cameras/camera_class/hik_camera.hpp \
  /home/yc-mini/myStudy/armor_detector/hikSDK/include/MvCameraControl.h \
  /home/yc-mini/myStudy/armor_detector/hikSDK/include/MvErrorDefine.h \
  /home/yc-mini/myStudy/armor_detector/hikSDK/include/CameraParams.h \
- /home/yc-mini/myStudy/armor_detector/hikSDK/include/PixelType.h
+ /home/yc-mini/myStudy/armor_detector/hikSDK/include/PixelType.h \
+ /home/yc-mini/myStudy/armor_detector/cameras/camera_class/mind_camera.hpp \
+ /home/yc-mini/myStudy/armor_detector/mvSDK/include/CameraApi.h \
+ /home/yc-mini/myStudy/armor_detector/mvSDK/include/CameraDefine.h \
+ /home/yc-mini/myStudy/armor_detector/mvSDK/include/CameraStatus.h \
+ /home/yc-mini/myStudy/armor_detector/cameras/camera_class/virtual_camera.hpp \
+ /home/yc-mini/myStudy/armor_detector/include/armor_detector_consumer.hpp \
+ /home/yc-mini/myStudy/armor_detector/include/armor_detector.hpp

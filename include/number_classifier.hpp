@@ -1,5 +1,5 @@
-#ifndef ARMOR_DETECTOR_NUMBER_CLASSIFIER_HPP_
-#define ARMOR_DETECTOR_NUMBER_CLASSIFIER_HPP_
+#ifndef ARMOR_DETECTOR_NUMBER_CLASSIFIER_HPP
+#define ARMOR_DETECTOR_NUMBER_CLASSIFIER_HPP
 
 // std
 #include <cstddef>
@@ -29,4 +29,4 @@ private:
   std::vector<std::string> ignore_classes_;
 };
 
-#endif // ARMOR_DETECTOR_NUMBER_CLASSIFIER_HPP_
+#endif // ARMOR_DETECTOR_NUMBER_CLASSIFIER_HPP

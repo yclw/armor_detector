@@ -3,10 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "virtual_camera.hpp"
+#include "cameras.hpp"
+#include "armor_detector_consumer.hpp"
+
 
 int main()
 {
+    HikCamera::getHikCameraList();
+    MindCamera::getMindCameraList();
+    return 0;
+
     // 创建共享资源
     std::unordered_map<std::string, std::shared_ptr<std::pair<cv::Mat, bool>>> producerFrames;
     std::mutex mtx;
